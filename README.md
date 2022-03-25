@@ -19,6 +19,8 @@ make
 
 And `libthread_reuse.so` should be there
 
+Tips: To use in qemu-user, compile for the target architecture is needed.
+
 ## Use
 
 ```bash
@@ -28,6 +30,7 @@ LD_PRELOAD=libthread_reuse.so command
 or if in qemu-user
 ``` bash
 qemu-ARCH -E LD_PRELOAD=libthread_reuse.so an-executable-of-arch
+```
 
 ## How can it implemented
 
