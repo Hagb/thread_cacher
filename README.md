@@ -2,13 +2,15 @@
 
 Keep the "exited" thread in "thread pool" and reuse it when new thread is needed, instead of creating and destory threads again and again. 
 
-At the beginning, it is wriiten as a workaround for [the memory leak of qemu-user when threads are created and destoryed](https://gitlab.com/qemu-project/qemu/-/issues/866).
+At the beginning, it was wriiten as a workaround for [the memory leak of qemu-user when threads are created and destoryed](https://gitlab.com/qemu-project/qemu/-/issues/866).
 
 **DO NOT USE IN PRODUCTION ENVIRNOMENT**
 
 ## Build
 
 ```bash
+git submodule init
+git submodule update
 mkdir build
 cd build
 cmake ..
@@ -22,6 +24,10 @@ And `libthread_reuse.so` should be there
 ```bash
 LD_PRELOAD=libthread_reuse.so command
 ```
+
+or if in qemu-user
+``` bash
+qemu-ARCH -E LD_PRELOAD=libthread_reuse.so an-executable-of-arch
 
 ## How can it implemented
 
@@ -41,3 +47,4 @@ It hooks some pthread functions:
 - [ ]: more configurable
 - [ ]: more tests
 - [ ]: test suite
+- [ ]: better POSIX compatibility
