@@ -23,6 +23,11 @@ And then there should be a `./libthread_reuse.so`.
 LD_PRELOAD=libthread_reuse.so command
 ```
 
+or if in qemu-user
+``` bash
+qemu-ARCH -E LD_PRELOAD=libthread_reuse.so program
+```
+
 ## How can it implemented
 
 It hooks some functions of pthread:
