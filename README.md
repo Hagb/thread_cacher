@@ -20,12 +20,12 @@ And then there should be a `./libthread_reuse.so`.
 ## Use
 
 ```bash
-LD_PRELOAD=libthread_reuse.so command
+LD_PRELOAD=path-to-libthread_reuse.so command
 ```
 
 or if in qemu-user
 ``` bash
-qemu-ARCH -E LD_PRELOAD=libthread_reuse.so program
+qemu-ARCH -E LD_PRELOAD=path-to-libthread_reuse.so program
 ```
 
 ## How can it implemented
