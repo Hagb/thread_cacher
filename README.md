@@ -28,7 +28,7 @@ or if in qemu-user
 qemu-ARCH -E LD_PRELOAD=path-to-libthread_reuse.so program
 ```
 
-## How can it implemented
+## How can it be implemented
 
 It hooks some functions of pthread:
 
