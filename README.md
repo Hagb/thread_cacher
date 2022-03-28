@@ -40,6 +40,7 @@ It hooks some functions of pthread:
 
 ## TODO
 
+- [ ] thread cancellation support
 - [ ] handle more signals
 - [ ] more comment and document
 - [ ] code clean-up and better style
