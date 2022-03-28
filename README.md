@@ -36,7 +36,7 @@ It hooks some functions of pthread:
 - `pthread_join`: (origin) join the thread, after that the thread will be destroyed; (hooked) wait until the thread finish its task, and get the return value of the task function, and tell the real thread that it can come back to the pool
 - `pthread_detach`: (origin) ...; (hooked) tell the thread that it can come back to the pool
 - `pthread_exit`: (origin) exit the thread calling this function; (hooked) jump out of the task function via a long jump (exactly `siglongjmp`)
-- `pthread_kill`: (origin) send a signal to a thread (including kill the signal by `SIGKILL`) or determine whether the thread alive by sig `0`; (hooked) if `SIGKILL` is passed, send the thread a specific signal whose handler will jump out of the task function, or if sig `0` is passed, return whether the task has been terminated.
+- `pthread_kill`: (origin) send a signal to the thread if the signal is not `0`, or return whether the thread is terminated if the signal is `0`; (hooked) send a signal if the signal is not `0`, or return whether the task function is terminated if the signal is `0`
 
 ## TODO
 

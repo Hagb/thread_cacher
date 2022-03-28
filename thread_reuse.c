@@ -20,6 +20,9 @@ static int (*pthread_join_)(pthread_t thread, void **retval);
 static int (*pthread_detach_)(pthread_t thread);
 static int (*pthread_kill_)(pthread_t thread, int signo);
 static void (*pthread_exit_)(void **retval);
+// static int (*pthread_sigmask_)(int how, const sigset_t *set, sigset_t
+// *oldset);
+
 static size_t pagesize;
 // static int (*pthread_sigmask_)(pthread_t thread, int signo);
 
@@ -78,23 +81,11 @@ static thread_info_t *get_busy(pthread_t thread) {
 _Thread_local thread_info_t *thread_local_info;
 _Thread_local jmp_buf exit_jmp;
 
-void sigkill_handler(int sig) {
-  pthread_mutex_lock(&thread_local_info->sig_init_lock);
-  thread_local_info->sig_inited = 1;
-  pthread_cond_broadcast(&thread_local_info->sig_init_cond);
-  pthread_mutex_unlock(&thread_local_info->sig_init_lock);
-  siglongjmp(exit_jmp, 2);
-}
-
 void *thread_wrapper(void *arg) {
   thread_local_info = arg;
   assert(pthread_self() == thread_local_info->thread);
   _Bool long_jmped = 0;
   pthread_mutex_lock(&thread_local_info->sig_init_lock);
-  struct sigaction act = {
-      .sa_handler = sigkill_handler, .sa_flags = 0, .sa_restorer = NULL};
-  sigemptyset(&act.sa_mask);
-  sigaction(SIGKILL_REPLACE_SIG, &act, NULL);
   thread_local_info->sig_inited = 1;
 
   switch (sigsetjmp(exit_jmp, 1)) {
@@ -192,7 +183,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         pthread_mutex_unlock(&info->lock);
         *thread = info->thread;
         if (detachstate == PTHREAD_CREATE_DETACHED) {
-          //printf("detach!!\n");
+          // printf("detach!!\n");
           pthread_detach(info->thread);
         }
         return 0;
@@ -325,38 +316,10 @@ void pthread_exit(void *retval) {
 }
 
 int pthread_kill(pthread_t thread, int signo) {
-  if (thread == main_thread) {
+  if (signo || (thread == main_thread)) {
     return pthread_kill_(thread, signo);
   }
-  thread_info_t *info;
-  switch (signo) {
-  case 0:
-    info = get_busy(thread);
-    return (info && !info->joined_exit) ? 0 : ESRCH;
-  case SIGKILL:
-    info = get_busy(thread);
-    if (!info)
-      return EINVAL;
-    pthread_mutex_lock(&info->sig_init_lock);
-    while (info->sig_inited)
-      pthread_cond_wait(&info->sig_init_cond, &info->sig_init_lock);
-    pthread_mutex_unlock(&info->sig_init_lock);
 
-    if (pthread_mutex_trylock(&thread_local_info->after_returned_lock)) {
-
-      pthread_mutex_lock(&info->sig_init_lock);
-      info->sig_inited = 0;
-      while (info->sig_inited)
-        pthread_cond_wait(&info->sig_init_cond, &info->sig_init_lock);
-      pthread_mutex_unlock(&info->sig_init_lock);
-
-      pthread_mutex_unlock(&thread_local_info->after_returned_lock);
-    } else {
-      pthread_detach(thread);
-    }
-
-    pthread_kill_(thread, SIGKILL_REPLACE_SIG);
-  default:
-    return pthread_kill_(thread, signo);
-  }
+  thread_info_t *info = get_busy(thread);
+  return (info && !info->joined_exit) ? 0 : ESRCH;
 }
