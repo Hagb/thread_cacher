@@ -172,6 +172,14 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
       info = queue_pop_right(idle_threads);
       if (info != NULL) {
         pthread_mutex_lock(&info->lock);
+        cpu_set_t cpu_set;
+        pthread_attr_getaffinity_np(attr2, sizeof(cpu_set_t), &cpu_set);
+        pthread_setaffinity_np(info->thread, sizeof(cpu_set_t), &cpu_set);
+        struct sched_param schedparam;
+        int policy;
+        pthread_attr_getschedpolicy(attr2, &policy);
+        pthread_attr_getschedparam(attr2, &schedparam);
+        pthread_setschedparam(info->thread, policy, &schedparam);
         info->arg = arg;
         free(info->attr);
         info->attr = attr2;
