@@ -45,7 +45,7 @@ typedef struct {
   pthread_cond_t start_cond;
   pthread_cond_t return_cond;
   pthread_cond_t join_finish_cond;
-  pthread_mutex_t after_returned_lock;
+  // pthread_mutex_t after_returned_lock;
   pthread_mutex_t sig_init_lock;
   pthread_mutex_t lock;
   pthread_mutex_t join_lock;
@@ -108,7 +108,7 @@ void *thread_wrapper(void *arg) {
           (thread_local_info->start_routine)(thread_local_info->arg);
     long_jmped = 0;
 
-    pthread_mutex_lock(&thread_local_info->after_returned_lock);
+    // pthread_mutex_lock(&thread_local_info->after_returned_lock);
 
     pthread_mutex_lock(&thread_local_info->lock);
     thread_local_info->sig_inited = 1;
@@ -132,7 +132,7 @@ void *thread_wrapper(void *arg) {
     }
     pthread_mutex_unlock(&thread_local_info->lock);
 
-    pthread_mutex_unlock(&thread_local_info->after_returned_lock);
+    // pthread_mutex_unlock(&thread_local_info->after_returned_lock);
   }
 }
 
@@ -208,7 +208,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   pthread_cond_init(&info->return_cond, NULL);
   pthread_cond_init(&info->start_cond, NULL);
   pthread_cond_init(&info->join_finish_cond, NULL);
-  pthread_mutex_init(&info->after_returned_lock, NULL);
+  // pthread_mutex_init(&info->after_returned_lock, NULL);
   pthread_mutex_init(&info->sig_init_lock, NULL);
   pthread_mutex_init(&info->lock, NULL);
   pthread_mutex_init(&info->join_lock, NULL);
