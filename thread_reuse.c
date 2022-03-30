@@ -249,12 +249,12 @@ int pthread_join(pthread_t thread, void **retval) {
   assert(info->thread == thread);
   if (pthread_mutex_lock(&info->join_lock)) {
     // printf("lock error!\n");
-    return EINVAL;
+    return info->returned ? ESRCH : EINVAL;
   }
   if (info->joined) {
     // printf("join error!\n");
     pthread_mutex_unlock(&info->join_lock);
-    return EINVAL;
+    return info->returned ? ESRCH : EINVAL;
   }
   info->joined = 1;
   pthread_mutex_unlock(&info->join_lock);
@@ -288,12 +288,12 @@ int pthread_detach(pthread_t thread) {
   assert(info->thread == thread);
   if (pthread_mutex_lock(&info->join_lock)) {
     // printf("lock error!\n");
-    return EINVAL;
+    return info->returned ? ESRCH : EINVAL;
   }
   if (info->joined) {
     // printf("join error!\n");
     pthread_mutex_unlock(&info->join_lock);
-    return EINVAL;
+    return info->returned ? ESRCH : EINVAL;
   }
   info->joined = 1;
   pthread_mutex_unlock(&info->join_lock);
@@ -321,5 +321,5 @@ int pthread_kill(pthread_t thread, int signo) {
   }
 
   thread_info_t *info = get_busy(thread);
-  return (info && !info->joined_exit) ? 0 : ESRCH;
+  return (info && !info->returned) ? 0 : ESRCH;
 }
