@@ -4,6 +4,8 @@ Save the "exited" threads in a "thread pool" and reuse them when new threads is 
 
 At the beginning, it was wriiten as a workaround for [the memory leak of qemu-user when threads are created and destroyed](https://gitlab.com/qemu-project/qemu/-/issues/866).
 
+Archived, because the bug has been fixed and merged to qemu 8.0.
+
 **DO NOT USE IN PRODUCTION ENVIRNOMENT**
 
 ## Build
